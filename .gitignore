@@ -34,4 +34,3 @@ coverage.out
 
 #env files
 .env
-/deploy.sh
