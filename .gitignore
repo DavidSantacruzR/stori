@@ -32,3 +32,6 @@ coverage.out
 # Ignore test binary
 *_test
 
+#env files
+.env
+/deploy.sh

@@ -8,16 +8,15 @@ import (
 )
 
 func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	filename := event.QueryStringParameters["filename"]
-	parsedCsv, err := ReadCsv(filename)
+	summary, err := GetAccountSummary(event.Body)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
-			Body:       `{"error": "failed to read transactions from csv"}`,
+			Body:       `{"error": "failed to get account summary"}`,
 		}, nil
 	}
-	jsonResult, err := json.Marshal(parsedCsv)
-	if err != nil {
+	jsonResult, marshalErr := json.Marshal(summary)
+	if marshalErr != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
 			Body:       `{"error": "failed to marshal json response"}`,

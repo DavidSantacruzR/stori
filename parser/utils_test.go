@@ -49,24 +49,3 @@ func TestParseCsvFileError(t *testing.T) {
 		t.Error("Error does not match the expected error message")
 	}
 }
-
-func TestGetAccountSummary(t *testing.T) {
-	value := GetAccountSummary("transactions.csv")
-	monthlySummary := make([]MonthSummary, 2)
-	monthlySummary = append(monthlySummary, MonthSummary{
-		Month:                "July",
-		NumberOfTransactions: 2,
-	})
-	monthlySummary = append(monthlySummary, MonthSummary{
-		Month:                "August",
-		NumberOfTransactions: 2,
-	})
-	expectedResult := AccountSummary{
-		TotalBalance:        39.739999999999995,
-		AverageCreditAmount: 35.25,
-		AverageDebitAmount:  15.38,
-		Transactions:        monthlySummary,
-	}
-	if reflect.DeepEqual(value, expectedResult) {
-	}
-}
