@@ -17,7 +17,7 @@ func handler(ctx context.Context, input string) (string, error) {
 	if requestErr != nil {
 		return "", requestErr
 	}
-	parsedCsv, csvErr := ReadCsv(request.Filename)
+	parsedCsv, csvErr := ReadCsv(request.Filename, GetFileFromS3)
 	if csvErr != nil {
 		return "", csvErr
 	}

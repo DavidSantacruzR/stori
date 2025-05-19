@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"log"
-	"os"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"io"
 	"strconv"
 	"strings"
 )
@@ -61,17 +63,26 @@ func getMonths() map[int]string {
 	}
 }
 
-func ReadCsv(filename string) ([]Transaction, error) {
-	file, err := os.Open(filename)
+func GetFileFromS3(filename string) (io.ReadCloser, error) {
+	client := s3.New(session.Must(session.NewSession()))
+	response, err := client.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String("stori"),
+		Key:    aws.String(filename),
+	})
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer file.Close()
-	reader := csv.NewReader(file)
-	records, err := reader.ReadAll()
+	return response.Body, nil
+}
+
+func ReadCsv(filename string, fetchFn func(string) (io.ReadCloser, error)) ([]Transaction, error) {
+	s3File, err := fetchFn(filename)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+	defer s3File.Close()
+	reader := csv.NewReader(s3File)
+	records, _ := reader.ReadAll()
 	if len(records) == 0 {
 		return nil, fmt.Errorf("csv is empty, unable to parse")
 	}
