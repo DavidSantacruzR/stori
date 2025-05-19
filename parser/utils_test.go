@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"reflect"
 	"strings"
@@ -57,8 +56,6 @@ func TestParseCsvFileSuccess(t *testing.T) {
 			Amount:        10.0,
 		},
 	}
-	fmt.Println(file)
-	fmt.Println(expectedResult)
 	if !reflect.DeepEqual(file, expectedResult) {
 		t.Error("Parsed test csv does not match the expected format.")
 	}
