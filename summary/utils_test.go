@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"reflect"
 	"testing"
 )
@@ -37,8 +36,7 @@ func TestGetAccountSummary(t *testing.T) {
 			Amount:        10.0,
 		},
 	}
-	jsonTransactions, _ := json.Marshal(transactions)
-	value, _ := GetAccountSummary(string(jsonTransactions))
+	value, _ := GetAccountSummary(transactions)
 	monthlySummary := make([]MonthSummary, 2)
 	monthlySummary = append(monthlySummary, MonthSummary{
 		Month:                "July",

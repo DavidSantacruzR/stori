@@ -2,20 +2,25 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func handler(ctx context.Context, input string) (string, error) {
-	summary, err := GetAccountSummary(input)
+type Request struct {
+	Transactions []Transaction `json:"transactions"`
+	Email        string        `json:"email"`
+}
+
+type Response struct {
+	Summary AccountSummary `json:"summary"`
+	Email   string         `json:"email"`
+}
+
+func handler(ctx context.Context, input Request) (Response, error) {
+	summary, err := GetAccountSummary(input.Transactions)
 	if err != nil {
-		return "", err
+		return Response{}, err
 	}
-	jsonResult, marshalErr := json.Marshal(summary)
-	if marshalErr != nil {
-		return "", marshalErr
-	}
-	return string(jsonResult), nil
+	return Response{Summary: summary, Email: input.Email}, nil
 }
 
 func main() {

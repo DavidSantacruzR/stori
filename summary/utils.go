@@ -1,10 +1,5 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
 type AccountSummary struct {
 	TotalBalance        float64        `json:"total_balance"`
 	AverageCreditAmount float64        `json:"average_credit_amount"`
@@ -25,12 +20,7 @@ type Transaction struct {
 	Amount        float64 `json:"amount"`
 }
 
-func GetAccountSummary(summary string) (AccountSummary, error) {
-	var transactions []Transaction
-	jsonErr := json.Unmarshal([]byte(summary), &transactions)
-	if jsonErr != nil {
-		return AccountSummary{}, fmt.Errorf("error unmarshalling account summary: %s", jsonErr.Error())
-	}
+func GetAccountSummary(transactions []Transaction) (AccountSummary, error) {
 	totalCreditAmount := 0.0
 	totalCreditTransactions := 0.0
 	totalDebitAmount := 0.0

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
@@ -11,17 +10,18 @@ type Request struct {
 	Filename string `json:"filename"`
 }
 
-func handler(ctx context.Context, input Request) (string, error) {
+type Response struct {
+	Transactions []Transaction `json:"transactions"`
+	Email        string        `json:"email"`
+}
+
+func handler(ctx context.Context, input Request) (Response, error) {
 	parsedCsv, csvErr := ReadCsv(input.Filename, GetFileFromS3)
 	if csvErr != nil {
-		return "", csvErr
-	}
-	jsonResult, jsonParsingErr := json.Marshal(parsedCsv)
-	if jsonParsingErr != nil {
-		return "", jsonParsingErr
+		return Response{}, csvErr
 	}
 	ctx = context.WithValue(ctx, "email", input.Email)
-	return string(jsonResult), nil
+	return Response{Transactions: parsedCsv, Email: input.Email}, nil
 }
 
 func main() {

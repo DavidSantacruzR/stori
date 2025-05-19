@@ -21,25 +21,29 @@ type AccountSummary struct {
 	Transactions        []MonthSummary `json:"monthly_summary"`
 }
 
-func handler(ctx context.Context, input string) error {
-	var summary = AccountSummary{}
-	err := json.Unmarshal([]byte(input), &summary)
-	if err != nil {
-		return err
-	}
+type Request struct {
+	Summary AccountSummary `json:"summary"`
+	Email   string         `json:"email"`
+}
+
+type Response struct {
+	Sent bool `json:"sent"`
+}
+
+func handler(ctx context.Context, input Request) Response {
 	body := AccountSummary{
-		TotalBalance:        summary.TotalBalance,
-		AverageCreditAmount: summary.AverageCreditAmount,
-		AverageDebitAmount:  summary.AverageDebitAmount,
-		Transactions:        summary.Transactions,
+		TotalBalance:        input.Summary.TotalBalance,
+		AverageCreditAmount: input.Summary.AverageCreditAmount,
+		AverageDebitAmount:  input.Summary.AverageDebitAmount,
+		Transactions:        input.Summary.Transactions,
 	}
 	parsedBody, parseError := json.Marshal(body)
 	if parseError != nil {
-		return parseError
+		return Response{Sent: false}
 	}
 	senderSession := session.Must(session.NewSession())
 	svc := ses.New(senderSession)
-	_, err = svc.SendEmail(&ses.SendEmailInput{
+	_, _ = svc.SendEmail(&ses.SendEmailInput{
 		Source: aws.String("axelsantacruzr@gmail.com"),
 		Destination: &ses.Destination{
 			ToAddresses: []*string{aws.String(ctx.Value("email").(string))},
@@ -51,7 +55,7 @@ func handler(ctx context.Context, input string) error {
 			},
 		},
 	})
-	return err
+	return Response{Sent: true}
 }
 
 func main() {
