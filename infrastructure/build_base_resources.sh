@@ -15,7 +15,7 @@ terraform apply --target=aws_iam_policy.lambda_s3_read --auto-approve
 
 echo "Configure role policy"
 terraform apply --target=aws_iam_role_policy_attachment.lambda_basic --auto-approve
-terraform apply --target=aws_iam_role_policy_attachment.ambda_s3_read_attach --auto-approve
+terraform apply --target=aws_iam_role_policy_attachment.lambda_s3_read_attach --auto-approve
 
 
 echo "Deployment finished"
