@@ -11,15 +11,15 @@
 * aws-dynamodb
 * aws-efs
 
-<h2>Spinning up the initial infra configuration</h2>
+<h2>Set up the project</h2>
 
-<h3>Building the container images</h3>
+<h3>1. Building the container images</h3>
 In the root folder first run the building file to construct the lambda images:
 ```zsh
 sh build_images.sh
 ```
 
-<h3>Spinning up base resources</h3>
+<h3>2. Spinning up base resources</h3>
 Once the building process finished then go to the **infrastructure** folder and
 run the following script to create the base resources to use: dynamo, SES, ecr, and efs:
 
@@ -27,7 +27,7 @@ run the following script to create the base resources to use: dynamo, SES, ecr, 
 sh build_base_resources.sh
 ```
 
-<h3>Pushing images to ecr</h3>
+<h3>3. Pushing images to ecr</h3>
 Once the previous script is done, now it's the time to push the built images to ecr. For that go back to the root folder
 and use the following script.
 
@@ -41,12 +41,21 @@ that's going to be used to upload the images to the registry.
 sh push_images_to_ecr.sh
 ```
 
-<h3>Deploying the lambdas to AWS</h3>
+<h3>4. Deploying the lambdas to AWS</h3>
 Finally, as a last step, move back to the infrastructure folder and run the last script to deploy the lambdas to the cloud provider:
 ```zsh
 sh build_deploy_lambdas.sh
 ```
 
 <h2>Running the tests:</h2>
-To run the tests for each module please run ```go test``` inside both folders ```email```
+To run the tests for each module please run ```go test``` inside both folders ```summary```
 and ```parser```.
+
+<h2>Executing the project</h2>
+
+After finishing the configuration file, test the solution accordingly.
+
+1. upload a csv sample file to the efs manually.
+2. invoke the lambda on the aws web console indicating the destination email, and the name of the csv
+file you just uploaded.
+3. wait for the email.

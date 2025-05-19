@@ -3,34 +3,25 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	filename := event.QueryStringParameters["filename"]
-	parsedCsv, err := ReadCsv(filename)
-	if err != nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       `{"error": "failed to read transactions from csv"}`,
-		}, nil
+type Request struct {
+	Email    string `json:"email"`
+	Filename string `json:"filename"`
+}
+
+func handler(ctx context.Context, input Request) (string, error) {
+	parsedCsv, csvErr := ReadCsv(input.Filename, GetFileFromS3)
+	if csvErr != nil {
+		return "", csvErr
 	}
-	jsonResult, err := json.Marshal(parsedCsv)
-	if err != nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       `{"error": "failed to marshal json response"}`,
-		}, nil
+	jsonResult, jsonParsingErr := json.Marshal(parsedCsv)
+	if jsonParsingErr != nil {
+		return "", jsonParsingErr
 	}
-	response := events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Body:       string(jsonResult),
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-	return response, nil
+	ctx = context.WithValue(ctx, "email", input.Email)
+	return string(jsonResult), nil
 }
 
 func main() {

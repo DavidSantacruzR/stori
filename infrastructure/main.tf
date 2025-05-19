@@ -8,9 +8,19 @@ resource "aws_ecr_repository" "lambda_ecr_repo" {
   }
 }
 
+# Config s3 bucket to get the csv file from.
+
+resource "aws_s3_bucket" "lambda_bucket" {
+  bucket = "stori-challenge-david-s"
+  force_destroy = true
+  tags = {
+    Name = "stori-challenge-david-s"
+  }
+}
+
 # Role policies
 resource "aws_iam_role" "lambda_role" {
-  name = "${var.function_name}-role"
+  name = "stori-lambda-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -25,9 +35,30 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+resource "aws_iam_policy" "lambda_s3_read" {
+  name = "stori-lambda-s3-read"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject"
+        ],
+        Resource = "${aws_s3_bucket.lambda_bucket.arn}/*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3_read_attach" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_s3_read.arn
 }
 
 # Config to create the lambdas based on the images on ecr
@@ -60,6 +91,18 @@ resource "aws_lambda_function" "docker_lambda_summary" {
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.lambda_ecr_repo.repository_url}:lambda-summary"
+  timeout     = var.lambda_timeout
+  memory_size = var.lambda_memory_size
+  environment {
+    variables = var.environment_variables
+  }
+}
+
+resource "aws_lambda_function" "docker_lambda_email" {
+  function_name = "lambda-email"
+  role          = aws_iam_role.lambda_role.arn
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.lambda_ecr_repo.repository_url}:lambda-email"
   timeout     = var.lambda_timeout
   memory_size = var.lambda_memory_size
   environment {
