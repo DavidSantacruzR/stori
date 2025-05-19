@@ -11,13 +11,8 @@ type Request struct {
 	Filename string `json:"filename"`
 }
 
-func handler(ctx context.Context, input string) (string, error) {
-	var request = Request{}
-	requestErr := json.Unmarshal([]byte(input), &request)
-	if requestErr != nil {
-		return "", requestErr
-	}
-	parsedCsv, csvErr := ReadCsv(request.Filename, GetFileFromS3)
+func handler(ctx context.Context, input Request) (string, error) {
+	parsedCsv, csvErr := ReadCsv(input.Filename, GetFileFromS3)
 	if csvErr != nil {
 		return "", csvErr
 	}
@@ -25,7 +20,7 @@ func handler(ctx context.Context, input string) (string, error) {
 	if jsonParsingErr != nil {
 		return "", jsonParsingErr
 	}
-	ctx = context.WithValue(ctx, "email", request.Email)
+	ctx = context.WithValue(ctx, "email", input.Email)
 	return string(jsonResult), nil
 }
 
