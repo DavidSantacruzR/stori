@@ -66,7 +66,7 @@ func getMonths() map[int]string {
 func GetFileFromS3(filename string) (io.ReadCloser, error) {
 	client := s3.New(session.Must(session.NewSession()))
 	response, err := client.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String("stori"),
+		Bucket: aws.String("stori-challenge-david-s"), //Avoid changing this bucket name pls.
 		Key:    aws.String(filename),
 	})
 	if err != nil {

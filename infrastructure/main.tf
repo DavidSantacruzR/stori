@@ -11,10 +11,10 @@ resource "aws_ecr_repository" "lambda_ecr_repo" {
 # Config s3 bucket to get the csv file from.
 
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = "stori"
+  bucket = "stori-challenge-david-s"
   force_destroy = true
   tags = {
-    Name = "stori"
+    Name = "stori-challenge-david-s"
   }
 }
 
