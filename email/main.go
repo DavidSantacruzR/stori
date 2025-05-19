@@ -30,7 +30,7 @@ type Response struct {
 	Sent bool `json:"sent"`
 }
 
-func handler(ctx context.Context, input Request) Response {
+func handler(ctx context.Context, input Request) (Response, error) {
 	body := AccountSummary{
 		TotalBalance:        input.Summary.TotalBalance,
 		AverageCreditAmount: input.Summary.AverageCreditAmount,
@@ -39,14 +39,14 @@ func handler(ctx context.Context, input Request) Response {
 	}
 	parsedBody, parseError := json.Marshal(body)
 	if parseError != nil {
-		return Response{Sent: false}
+		return Response{Sent: false}, parseError
 	}
 	senderSession := session.Must(session.NewSession())
 	svc := ses.New(senderSession)
 	_, _ = svc.SendEmail(&ses.SendEmailInput{
 		Source: aws.String("axelsantacruzr@gmail.com"),
 		Destination: &ses.Destination{
-			ToAddresses: []*string{aws.String(ctx.Value("email").(string))},
+			ToAddresses: []*string{aws.String(input.Email)},
 		},
 		Message: &ses.Message{
 			Subject: &ses.Content{Data: aws.String("Job Status")},
@@ -55,7 +55,7 @@ func handler(ctx context.Context, input Request) Response {
 			},
 		},
 	})
-	return Response{Sent: true}
+	return Response{Sent: true}, nil
 }
 
 func main() {

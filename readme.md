@@ -9,7 +9,7 @@
 * aws-container registry
 * aws-admin access
 * aws-dynamodb
-* aws-efs
+* aws-s3
 
 <h2>Set up the project</h2>
 
@@ -21,7 +21,7 @@ sh build_images.sh
 
 <h3>2. Spinning up base resources</h3>
 Once the building process finished then go to the **infrastructure** folder and
-run the following script to create the base resources to use: dynamo, SES, ecr, and efs:
+run the following script to create the base resources to use: dynamo, SES, ecr, and s3:
 
 ```zsh
 sh build_base_resources.sh
@@ -47,15 +47,28 @@ Finally, as a last step, move back to the infrastructure folder and run the last
 sh build_deploy_lambdas.sh
 ```
 
-<h2>Running the tests:</h2>
-To run the tests for each module please run ```go test``` inside both folders ```summary```
+<h2>Running unit tests:</h2>
+To run the unit tests for each module please run ```go test``` inside both folders ```summary```
 and ```parser```.
 
 <h2>Executing the project</h2>
 
 After finishing the configuration file, test the solution accordingly.
 
-1. upload a csv sample file to the efs manually.
+1. Upload a csv file to the s3 bucket: stori-challenge-david-s.
 2. invoke the lambda on the aws web console indicating the destination email, and the name of the csv
 file you just uploaded.
 3. wait for the email.
+
+<h2>Explanation of the solution</h2>
+
+For the challenge, and the technical requirements to fulfill I determined that the best
+approximation was to use aws-lambdas, and step functions accordingly passing each output from the
+function flow directly to the next function until the email is sent to the user.
+
+The business logic is structured in four folders:
+
+* email
+* parser
+* storage
+* summary
