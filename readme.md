@@ -11,7 +11,7 @@
 * aws-dynamodb
 * aws-efs
 
-<h2>Spinning up the initial infra configuration</h2>
+<h2>Set up the project</h2>
 
 <h3>1. Building the container images</h3>
 In the root folder first run the building file to construct the lambda images:
@@ -48,5 +48,14 @@ sh build_deploy_lambdas.sh
 ```
 
 <h2>Running the tests:</h2>
-To run the tests for each module please run ```go test``` inside both folders ```email```
+To run the tests for each module please run ```go test``` inside both folders ```summary```
 and ```parser```.
+
+<h2>Executing the project</h2>
+
+After finishing the configuration file, test the solution accordingly.
+
+1. upload a csv sample file to the efs manually.
+2. invoke the lambda on the aws web console indicating the destination email, and the name of the csv
+file you just uploaded.
+3. wait for the email.

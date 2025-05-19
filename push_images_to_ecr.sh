@@ -18,5 +18,5 @@ docker tag lambda-summary $REGISTRY_URL/$PROJECT_NAME:lambda-summary
 docker push $REGISTRY_URL/$PROJECT_NAME:lambda-summary
 
 # lambda deploy for the email stuff
-docker tag lambda-summary $REGISTRY_URL/$PROJECT_NAME:lambda-email
+docker tag lambda-email $REGISTRY_URL/$PROJECT_NAME:lambda-email
 docker push $REGISTRY_URL/$PROJECT_NAME:lambda-email
