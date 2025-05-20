@@ -147,29 +147,43 @@ of the flow, and an email to said address, that should look like the following:
 
 ![Expected email](https://github.com/DavidSantacruzR/stori/blob/master/output_stori.jpeg)
 
+<h3>Alternative Execution Method</h3>
+
 
 <h2>Running unit tests:</h2>
-To run the unit tests for each module please run ```go test``` inside both folders ```summary```
-and ```parser```.
+To run the unit tests for each module please run ``go test`` inside both folders ``summary``
+and `parser``.
 
-<h2>Executing the project</h2>
+<h2>Code explanation</h2>
 
-After finishing the configuration file, test the solution accordingly.
+In this section there is a brief explanation of the code, the technical decisions, implementations, and areas for improvement.
 
-1. Upload a csv file to the s3 bucket: stori-challenge-david-s.
-2. invoke the lambda on the aws web console indicating the destination email, and the name of the csv
-file you just uploaded.
-3. wait for the email.
+<h3>Technical decisions</h3>
 
-<h2>Explanation of the solution</h2>
+The decision to use lambdas derives from the ease of use, configuration, and that it's easier to map a responsibility to
+each one of them, controlling the execution flow, verifying easily the output at every stage. 
 
-For the challenge, and the technical requirements to fulfill I determined that the best
-approximation was to use aws-lambdas, and step functions accordingly passing each output from the
-function flow directly to the next function until the email is sent to the user.
+The use of docker allow to
+seamlessly build images, and integrated them with ecr to build the lambdas, instead of using .zip files. 
 
-The business logic is structured in four folders:
+The use of terraform helps in making sure that every step needed for execution is always the same, and don't get lost in
+cloud configuration.
 
-* email
-* parser
-* storage
-* summary
+The use of go workspaces derives from the need to use docker, and have the code clearly separated for each build, and
+it was easier to automate with a script.
+
+<h3>Implementations</h3>
+
+<h3>Areas for improvement</h3>
+
+From the challenge, I've identified some areas for improvement, outlined below.
+
+* Clear area for improvement in the current project is the tight coupling between lambda contracts. For the challenge
+the easiest way to pass on information related to the sender, and the name attached file (instead of sending a key with base64 info)
+so any lambda could access that resource.
+* roles, and permissions, each lambda has access to all resources including SES, and S3. Separating also roles according
+to responsibilities is ideal.
+* For easier access to resources, and specifically to have a single entrypoint for execution using an AWS api-gateway
+allows for a single http request calling the lambda-parser function, and executing all lambdas in steps.
+* Implement the storage function using a dynamodb instance.
+* Implement lambda versioning.
