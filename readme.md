@@ -145,7 +145,7 @@ The expected input should look something like following:
 Once that's done you'll see a confirmation that an email was sent to the email address defined at the beginning
 of the flow, and an email to said address, that should look like the following:
 
-
+![Expected email](https://github.com/DavidSantacruzR/stori/blob/master/output_stori.jpeg)
 
 
 <h2>Running unit tests:</h2>
