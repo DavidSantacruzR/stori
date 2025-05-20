@@ -44,14 +44,15 @@ resource "aws_iam_policy" "lambda_s3_read" {
         Effect = "Allow",
         Action = [
           "s3:GetObject"
-        ]
+        ],
+        Resource = "${aws_s3_bucket.lambda_bucket.arn}/*"
       }
     ]
   })
 }
 
 resource "aws_iam_policy" "allow_ses_send_raw_email" {
-  name = "AllowSESSendRawEmail"
+  name = "allow-ses-send-raw-email"
   description = "Allowing sending raw emails from lambda functions"
   policy = jsonencode({
     Version = "2012-10-17",
