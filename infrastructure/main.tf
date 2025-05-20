@@ -44,8 +44,24 @@ resource "aws_iam_policy" "lambda_s3_read" {
         Effect = "Allow",
         Action = [
           "s3:GetObject"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "allow_ses_send_raw_email" {
+  name = "AllowSESSendRawEmail"
+  description = "Allowing sending raw emails from lambda functions"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ses:SendRawEmail"
         ],
-        Resource = "${aws_s3_bucket.lambda_bucket.arn}/*"
+        Resource = "*"
       }
     ]
   })
@@ -59,6 +75,11 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 resource "aws_iam_role_policy_attachment" "lambda_s3_read_attach" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.lambda_s3_read.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_send_raw_email" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.allow_ses_send_raw_email.arn
 }
 
 # Config to create the lambdas based on the images on ecr
