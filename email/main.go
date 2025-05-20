@@ -24,6 +24,7 @@ type AccountSummary struct {
 type Request struct {
 	Summary AccountSummary `json:"summary"`
 	Email   string         `json:"email"`
+	Sender  string         `json:"sender"`
 }
 
 type Response struct {
@@ -37,24 +38,21 @@ func handler(ctx context.Context, input Request) (Response, error) {
 		AverageDebitAmount:  input.Summary.AverageDebitAmount,
 		Transactions:        input.Summary.Transactions,
 	}
-	parsedBody, parseError := json.Marshal(body)
-	if parseError != nil {
-		return Response{Sent: false}, parseError
+	parsedBody, parsingErr := json.Marshal(body)
+	if parsingErr != nil {
+		return Response{false}, parsingErr
 	}
-	senderSession := session.Must(session.NewSession())
-	svc := ses.New(senderSession)
-	_, _ = svc.SendEmail(&ses.SendEmailInput{
-		Source: aws.String("axelsantacruzr@gmail.com"),
+	emailConfig := &ses.SendTemplatedEmailInput{
+		Source: aws.String(input.Sender),
 		Destination: &ses.Destination{
 			ToAddresses: []*string{aws.String(input.Email)},
 		},
-		Message: &ses.Message{
-			Subject: &ses.Content{Data: aws.String("Job Status")},
-			Body: &ses.Body{
-				Text: &ses.Content{Data: aws.String(string(parsedBody))},
-			},
-		},
-	})
+		Template:     aws.String("StoriSummaryTemplate"),
+		TemplateData: aws.String(string(parsedBody)),
+	}
+	senderSession := session.Must(session.NewSession())
+	svc := ses.New(senderSession)
+	_, _ = svc.SendTemplatedEmail(emailConfig)
 	return Response{Sent: true}, nil
 }
 

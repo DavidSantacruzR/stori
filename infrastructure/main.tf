@@ -18,6 +18,13 @@ resource "aws_s3_bucket" "lambda_bucket" {
   }
 }
 
+# Creating an email template to be send using SES
+resource "aws_ses_template" "stori_summary_template" {
+  name = "StoriSummaryTemplate"
+  subject = "Transaction summary"
+  html = "<h1>Transaction Summary</h1></br><div><ul><li><strong>Total Balance:</strong> {{total_balance}}</li><li><strong>Average Debit:</strong> {{average_debit_amount}}</li><li><strong>Average Credit:</strong> {{average_credit_amount}}</li><li><strong>Average Credit:</strong> {{monthly_summary}}</li></ul></div>"
+}
+
 # Role policies
 resource "aws_iam_role" "lambda_role" {
   name = "stori-lambda-role"
