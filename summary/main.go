@@ -9,12 +9,14 @@ type Request struct {
 	Transactions []Transaction `json:"transactions"`
 	Email        string        `json:"email"`
 	Sender       string        `json:"sender"`
+	Filename     string        `json:"filename"`
 }
 
 type Response struct {
-	Summary AccountSummary `json:"summary"`
-	Email   string         `json:"email"`
-	Sender  string         `json:"sender"`
+	Summary  AccountSummary `json:"summary"`
+	Email    string         `json:"email"`
+	Sender   string         `json:"sender"`
+	Filename string         `json:"filename"`
 }
 
 func handler(ctx context.Context, input Request) (Response, error) {
@@ -22,7 +24,7 @@ func handler(ctx context.Context, input Request) (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
-	return Response{Summary: summary, Email: input.Email, Sender: input.Sender}, nil
+	return Response{Summary: summary, Email: input.Email, Sender: input.Sender, Filename: input.Filename}, nil
 }
 
 func main() {
