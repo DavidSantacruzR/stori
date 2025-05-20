@@ -154,9 +154,10 @@ of the flow, and an email to said address, that should look like the following:
 To run the unit tests for each module please run ``go test`` inside both folders ``summary``
 and `parser``.
 
-<h2>Code explanation</h2>
+<h2>Project explanation</h2>
 
-In this section there is a brief explanation of the code, the technical decisions, implementations, and areas for improvement.
+In this section there is a brief explanation of the code, the technical decisions, implementations, 
+and areas for improvement.
 
 <h3>Technical decisions</h3>
 
@@ -173,6 +174,78 @@ The use of go workspaces derives from the need to use docker, and have the code 
 it was easier to automate with a script.
 
 <h3>Implementations</h3>
+
+As mentioned earlier, the project is separated into workspaces: parser, summary, and email. Every function makes use of
+the AWS SDK to handle interactions between different services.
+
+In the parser module, you’ll find two Go files — the `main` entrypoint and a `utils` file — along with two CSV 
+files used for unit testing.
+
+
+The primary objective of this lambda function is to read the csv file from a s3 bucket and transform it into
+a list of transactions following the DTO:
+```golang
+type Transaction struct {
+Move          string  `json:"move_type"`
+TransactionId int     `json:"transaction_id"`
+Month         string  `json:"month"`
+Day           int     `json:"day"`
+Amount        float64 `json:"amount"`
+}
+```
+Splitting transactions into debit and credit types enables simpler grouping and transformation logic downstream.
+
+This parsed structure ensures the summary Lambda’s complexity remains O(n), avoiding multiple passes 
+(e.g., one for debits, one for credits, one for monthly grouping).
+
+In the summary function two primary DTOs are implemented, one to hold all the summary information related to the account
+and one to hold the summarised data from each month.
+```golang
+type AccountSummary struct {
+	TotalBalance        float64        `json:"total_balance"`
+	AverageCreditAmount float64        `json:"average_credit_amount"`
+	AverageDebitAmount  float64        `json:"average_debit_amount"`
+	Transactions        []MonthSummary `json:"monthly_summary"`
+}
+
+type MonthSummary struct {
+	Month                string `json:"month"`
+	NumberOfTransactions int    `json:"number_of_transactions"`
+}
+```
+
+For the email lambda function there are two important pieces related to the implementation, and are that the
+template is defined as a constant in the module.
+
+This tight coupling simplifies rendering but trades off flexibility — 
+template customization requires a code change and redeployment.
+
+The HTML email template is embedded as a string constant in the module.
+It uses Go’s `html/template` package and follows the `AccountSummary` structure:
+```golang
+const TEMPLATE = `
+<h1 style="color:darkgreen;">Transaction Summary</h1>
+<br/>
+<div>
+	<ul>
+		<li><strong>Total Balance:</strong> {{.TotalBalance}}</li>
+		<li><strong>Average Debit:</strong> {{.AverageDebitAmount}}</li>
+		<li><strong>Average Credit:</strong> {{.AverageCreditAmount}}</li>
+	</ul>
+	<h3>Monthly Summary:</h3>
+	<ul>
+	{{range .Transactions}}
+		<li><strong>{{.Month}}:</strong> {{.NumberOfTransactions}} transactions</li>
+	{{end}}
+	</ul>
+</div>
+<img src="https://www.storicard.com/_next/static/media/stori_s_color.90dc745f.svg" alt="Stori Logo"/>
+`
+```
+
+The second important piece is the use of the AWS **SendRawEmail** functionality. 
+The function reads the original CSV file from S3, encodes it in base64, and attaches it to the outgoing 
+email using the SendRawEmail SES API.
 
 <h3>Areas for improvement</h3>
 
