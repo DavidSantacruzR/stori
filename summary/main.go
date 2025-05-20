@@ -8,11 +8,13 @@ import (
 type Request struct {
 	Transactions []Transaction `json:"transactions"`
 	Email        string        `json:"email"`
+	Sender       string        `json:"sender"`
 }
 
 type Response struct {
 	Summary AccountSummary `json:"summary"`
 	Email   string         `json:"email"`
+	Sender  string         `json:"sender"`
 }
 
 func handler(ctx context.Context, input Request) (Response, error) {
@@ -20,7 +22,7 @@ func handler(ctx context.Context, input Request) (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
-	return Response{Summary: summary, Email: input.Email}, nil
+	return Response{Summary: summary, Email: input.Email, Sender: input.Sender}, nil
 }
 
 func main() {
