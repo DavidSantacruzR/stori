@@ -131,3 +131,76 @@ resource "aws_lambda_function" "docker_lambda_email" {
     variables = var.environment_variables
   }
 }
+
+# step functions related infra:
+
+resource "aws_iam_role" "step_function_role" {
+  name = "step-function-lambda-execution-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "states.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "step_function_policy" {
+  name = "step-function-policy"
+  role = aws_iam_role.step_function_role.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "lambda:InvokeFunction"
+        ],
+        Resource = [
+          aws_lambda_function.docker_lambda_parser.arn,
+          aws_lambda_function.docker_lambda_summary.arn,
+          aws_lambda_function.docker_lambda_email.arn
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_sfn_state_machine" "lambda_pipeline" {
+  name     = "lambda-step-function"
+  role_arn = aws_iam_role.step_function_role.arn
+
+  definition = jsonencode({
+    Comment = "Orchestrate parser -> summary -> email",
+    StartAt = "Parser",
+    States = {
+      Parser = {
+        Type     = "Task",
+        Resource = aws_lambda_function.docker_lambda_parser.arn,
+        Next     = "Summary"
+      },
+      Summary = {
+        Type     = "Task",
+        Resource = aws_lambda_function.docker_lambda_summary.arn,
+        Next     = "Email"
+      },
+      Email = {
+        Type     = "Task",
+        Resource = aws_lambda_function.docker_lambda_email.arn,
+        End      = true
+      }
+    }
+  })
+}

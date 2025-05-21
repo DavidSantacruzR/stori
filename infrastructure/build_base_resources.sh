@@ -19,5 +19,4 @@ terraform apply --target=aws_iam_role_policy_attachment.lambda_basic --auto-appr
 terraform apply --target=aws_iam_role_policy_attachment.lambda_s3_read_attach --auto-approve
 terraform apply --target=aws_iam_role_policy_attachment.lambda_send_raw_email --auto-approve
 
-
 echo "Deployment finished"

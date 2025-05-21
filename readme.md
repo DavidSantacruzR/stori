@@ -148,6 +148,25 @@ of the flow, and an email to said address, that should look like the following:
 ![Expected email](https://github.com/DavidSantacruzR/stori/blob/master/output_stori.jpeg)
 
 <h3>Alternative Execution Method</h3>
+As an alternative and more automated execution method you can use a step function called
+**lambda-step-function**. As usual run it from the aws console.
+
+The expected input follows the same contract as in manual execution:
+
+```json
+{
+   "email": "myverifiedemail@gmail.com",
+   "sender": "myverifiedemail@gmail.com",
+   "filename": "transactions.csv"
+}
+```
+
+For execution remember that the email account you use has to be verified, and the file uploaded in the bucket
+as described in previous steps.
+
+Once the execution is finished, you should see an output like the following:
+
+![Execution Runner]()
 
 
 <h2>Running unit tests:</h2>
