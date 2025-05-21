@@ -164,9 +164,10 @@ The expected input follows the same contract as in manual execution:
 For execution remember that the email account you use has to be verified, and the file uploaded in the bucket
 as described in previous steps.
 
-Once the execution is finished, you should see an output like the following:
+Once the execution is finished, you should see an output like the following, and receive an email
+as described in the manual execution:
 
-![Execution Runner]()
+![Execution Runner](https://github.com/DavidSantacruzR/stori/blob/master/step_function_result.png)
 
 
 <h2>Running unit tests:</h2>
